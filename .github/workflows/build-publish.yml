@@ -1,0 +1,91 @@
+name: Build and Deploy Docker
+on:
+    push:
+    pull_request:
+    release:
+      types:
+        - published
+env:
+    dotnet-version: '8.x.x'
+    docker-image: 'pmdevers/sonarcloud-operator'
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        permissions:
+          packages: write
+          contents: read
+
+        steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+        
+        - name: Setup dotnet ${{ env.dotnet-version }}
+          uses: actions/setup-dotnet@v4
+          with:
+            dotnet-version: ${{ env.dotnet-version }}
+        
+        - name: Restore Dotnet Tools
+          run: dotnet tool restore
+
+        - name: Login to GitHub Container Registry
+          uses: docker/login-action@v3
+          with:
+            registry: ghcr.io
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+
+        - name: Test
+          run: dotnet test -c Release
+
+        - name: Upload unit test results
+          uses: actions/upload-artifact@v4
+          with:
+            name: dotnet-results
+            path: coverage
+          # Use always() to always run this step to publish test results when there are test failures
+          if: ${{ always() }}
+        
+        - name: Create Docker Image
+          if: github.event_name == 'release'
+          run: dotnet publish --os linux --arch x64 -p PublishProfile=DefaultContainer /t:PublishContainer -p ContainerImageTags=${{ github.sha }} -p ContainerRepository=${{ env.docker-image }}
+
+        - name: Create cli
+          if: github.event_name == 'release'
+          run: |
+            arrTag=(${GITHUB_REF//\// })
+            VERSION="${arrTag[2]}"
+            echo Version: $VERSION
+            VERSION="${VERSION//v}"
+            echo Clean Version: $VERSION
+            dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained true -o ./publish/linux -p:Version=$VERSION
+            dotnet publish -r win-x64 -p:PublishSingleFile=true --self-contained true -o ./publish/win -p:Version=$VERSION
+
+        - uses: actions/upload-artifact@v4
+          with:
+            name: sonarcloud-linux-x64
+            path: ./publish/linux/*
+        - uses: actions/upload-artifact@v4
+          with:
+            name: sonarcloud-win-x64
+            path: ./publish/win/*
+    deploy:
+      runs-on: ubuntu-latest
+      permissions:
+        contents: read
+        packages: write
+      needs: build
+      if: github.event_name == 'release'
+      steps:
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull Image
+        run: docker pull ghcr.io/${{ env.docker-image }}:${{ github.sha }}
+      - name: Tag Image ${{github.event.release.name}}
+        run: docker tag ghcr.io/${{ env.docker-image }}:${{ github.sha }} ghcr.io/${{ env.docker-image }}:${{github.event.release.name}}
+      - name: Push image ${{github.event.release.name}}
+        run: docker push ghcr.io/${{ env.docker-image }}:${{github.event.release.name}}

@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>f7ddad74-df11-41f8-a3ba-f08c1f420555</UserSecretsId>
+    <RuntimeIdentifiers>linux-x64;linux-arm64</RuntimeIdentifiers>
+    <EnableSdkContainerDebugging>True</EnableSdkContainerDebugging>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..</DockerfileContext>
+
+    <ContainerRegistry>ghcr.io</ContainerRegistry>
+    <ContainerRepository>pmdevers/sonar-operator</ContainerRepository>
+    <ContainerRuntimeIdentifier>linux-arm64</ContainerRuntimeIdentifier>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="K8sOperator.NET" />
+    <PackageReference Include="K8sOperator.NET.Generators" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="PMDEvers.SonarCloud.NET" />
+  </ItemGroup>
+
+</Project>

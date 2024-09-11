@@ -1,0 +1,55 @@
+{
+    "profiles": {
+        "Operator": {
+            "commandName": "Project",
+            "commandLineArgs": "operator",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "dotnetRunMessages": true
+        },
+        "Install": {
+            "commandName": "Project",
+            "commandLineArgs": "install > ./../../sonar-system.yaml",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "dotnetRunMessages": true
+        },
+        "Help": {
+            "commandName": "Project",
+            "commandLineArgs": "help",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "dotnetRunMessages": true
+        },
+
+        "Create (Project)": {
+            "commandName": "Project",
+            "commandLineArgs": "create project",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "dotnetRunMessages": true
+        },
+        "Container (.NET SDK)": {
+            "commandName": "SdkContainer",
+            "launchBrowser": true,
+            "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+            "environmentVariables": {
+                "ASPNETCORE_HTTP_PORTS": "8080"
+            },
+            "publishAllPorts": true
+        }
+    },
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:30648",
+      "sslPort": 0
+    }
+  }
+}
