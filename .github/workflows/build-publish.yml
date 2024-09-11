@@ -47,14 +47,14 @@ jobs:
           if: ${{ always() }}
         
         - name: Create Docker Image
-          if: github.event_name == 'release'
+          #if: github.event_name == 'release'
           run: |
               docker buildx create
               docker buildx build --pull -f src/Sonarcloud/Dockerfile -t ghcr.io/${{ env.docker-image }}:${{ github.sha }} --platform linux/arm64,linux/arm,linux/amd64 .
               #dotnet publish --os linux --arch x64 -p PublishProfile=DefaultContainer /t:PublishContainer -p ContainerImageTags=${{ github.sha }} -p ContainerRepository=${{ env.docker-image }}
 
         - name: Create cli
-          if: github.event_name == 'release'
+          #if: github.event_name == 'release'
           run: |
             arrTag=(${GITHUB_REF//\// })
             VERSION="${arrTag[2]}"
